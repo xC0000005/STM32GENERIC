@@ -53,12 +53,21 @@ void stm32_adc_init(ADC_HandleTypeDef *handle);
 
 
 #ifndef __HAL_RCC_ADC2_CLK_ENABLE
-#define __HAL_RCC_ADC2_CLK_ENABLE __HAL_RCC_ADC_CLK_ENABLE
-#endif
-#ifndef __HAL_RCC_ADC3_CLK_ENABLE
-#define __HAL_RCC_ADC3_CLK_ENABLE __HAL_RCC_ADC_CLK_ENABLE
+  #ifdef STM32H7
+     #define __HAL_RCC_ADC2_CLK_ENABLE __HAL_RCC_ADC12_CLK_DISABLE
+  #else
+     #define __HAL_RCC_ADC2_CLK_ENABLE __HAL_RCC_ADC_CLK_ENABLE
+  #endif
 #endif
 
+#ifndef __HAL_RCC_ADC3_CLK_ENABLE
+ #ifdef STM32F3  //for F3  huawei 2017.12.25
+  #define __HAL_RCC_ADC3_CLK_ENABLE __HAL_RCC_ADC34_CLK_ENABLE
+ #else
+  #define __HAL_RCC_ADC3_CLK_ENABLE __HAL_RCC_ADC_CLK_ENABLE
+ #endif
+#endif
+ 
 static int readResolution = 10;
 
 static ADC_HandleTypeDef handle[3];
@@ -88,7 +97,7 @@ int analogRead(uint8_t pin) {
     if (pin == 5) pin = A5;
 #endif
 
-    stm32_chip_adc1_channel_type config = stm32ADC1GetChannel(variant_pin_list[pin].port, variant_pin_list[pin].pin_mask);
+    stm32_chip_adc1_channel_type config = stm32ADC1GetChannel(variant_pin_list[pin].port, variant_pin_list[pin].pinMask);
 
 
     if (config.instance == NULL) {
@@ -110,25 +119,29 @@ int analogRead(uint8_t pin) {
     #endif
 
     GPIO_InitTypeDef GPIO_InitStruct;
-    GPIO_InitStruct.Pin = variant_pin_list[pin].pin_mask;
+    GPIO_InitStruct.Pin = variant_pin_list[pin].pinMask;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(variant_pin_list[pin].port, &GPIO_InitStruct);
 
     if (handle[instanceIndex].Instance == NULL) {
-        #ifdef __HAL_RCC_ADC1_CLK_ENABLE
+	 #ifdef __HAL_RCC_ADC1_CLK_ENABLE   //L4 only undef  huaweiwx@sina.com 2017.12
         __HAL_RCC_ADC1_CLK_ENABLE();
-        #endif
-        #ifdef __HAL_RCC_ADC_CLK_ENABLE
+	 #elif defined(__HAL_RCC_ADC12_CLK_ENABLE) //H4 
+        __HAL_RCC_ADC12_CLK_ENABLE();		
+	 #else  // __HAL_RCC_ADC_CLK_ENABLE  //L4 only 
         __HAL_RCC_ADC_CLK_ENABLE();
-        #endif
+	 #endif
         
         handle[instanceIndex].Instance = config.instance;
         handle[instanceIndex].Init.ScanConvMode = DISABLE;
         handle[instanceIndex].Init.ContinuousConvMode = ENABLE;
         handle[instanceIndex].Init.DiscontinuousConvMode = DISABLE;
+		
+		#if !defined(STM32H7)
         handle[instanceIndex].Init.DataAlign = ADC_DATAALIGN_RIGHT;
-
+		#endif
+		
         #ifdef STM32L0
             handle[instanceIndex].Init.SamplingTime = ADC_SAMPLETIME_13CYCLES_5;
         #endif
@@ -176,7 +189,9 @@ int analogRead(uint8_t pin) {
         sConfig.SamplingTime = ADC_SAMPLETIME_16CYCLES;
     #elif defined(ADC_SAMPLETIME_12CYCLES_5)
         sConfig.SamplingTime = ADC_SAMPLETIME_12CYCLES_5;
-    #else
+    #elif defined(STM32H7)
+	    //H7 none
+	#else
         #error "unknown sampleing time"
     #endif
 
@@ -209,3 +224,4 @@ int analogRead(uint8_t pin) {
 
     return ret;
 }
+

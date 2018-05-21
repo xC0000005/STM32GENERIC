@@ -23,7 +23,7 @@
 #include "stm32_def.h"
 #include "stm32_dma.h"
 
-#if defined(STM32F2) || defined(STM32F4) || defined(STM32F7)
+#if defined(STM32F2) || defined(STM32F4) || defined(STM32F7)||defined(STM32H7)
 #include "stm32_dma_F2F4F7.h"
 #elif defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32L1)
 #include "stm32_dma_F0F1F3L1.h"
@@ -54,7 +54,7 @@ bool stm32DmaAcquire(DMA_HandleTypeDef *handle, dmaRequest request, void *periph
             setDmaInstance(handle, dmaRequestToStream[i]);
 
             if (enableIrq) {
-                HAL_NVIC_SetPriority(dmaRequestToStream[i].irqN, 0, 0);
+                HAL_NVIC_SetPriority(dmaRequestToStream[i].irqN, DMA1_PRIORITY, 0);
                 HAL_NVIC_EnableIRQ(dmaRequestToStream[i].irqN);
             }
 
@@ -271,15 +271,14 @@ extern void DMA2_Channel3_IRQHandler() {
 }
 
 // F1
-#ifndef DMA2_Channel4_5_IRQHandler  //for f1 by huaweiwx   2017.6.20
+#ifndef DMA2_Channel4_5_IRQHandler     //F1 define  DMA2_Channel4_IRQHandler  DMA2_Channel4_5_IRQHandler  huaweiwx@sina.com 2017.6
 extern void DMA2_Channel4_5_IRQHandler() {
     HAL_DMA_IRQHandler(dmaHandles[4 + 8]);
     HAL_DMA_IRQHandler(dmaHandles[5 + 8]);
 }
 #endif
-
 // F1, F3, L1, L4
-#ifndef DMA2_Channel4_IRQHandler     //for f1 by huaweiwx  2017.6.20
+#ifndef DMA2_Channel4_IRQHandler      //F1 define  DMA2_Channel4_IRQHandler  DMA2_Channel4_5_IRQHandler  huaweiwx@sina.com 2017.6
 extern void DMA2_Channel4_IRQHandler() {
     HAL_DMA_IRQHandler(dmaHandles[4 + 8]);
 }

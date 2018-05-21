@@ -46,7 +46,7 @@ typedef void (*stm32_af_callback)();
 typedef struct {
     void *instance;
     GPIO_TypeDef *port;
-    uint32_t pin;
+    uint32_t pinMask;
     stm32_af_callback alternate;
 } stm32_af_pin_list_type;
 
@@ -63,7 +63,7 @@ typedef struct {
 typedef struct {
     void *instance;
     GPIO_TypeDef *port;
-    uint32_t pin;
+    uint32_t pinMask;
     uint8_t alternate;
 } stm32_af_pin_list_type;
 
@@ -81,7 +81,7 @@ typedef struct {
 typedef struct {
     ADC_TypeDef *instance;
     GPIO_TypeDef *port;
-    uint32_t pin_mask;
+    uint32_t pinMask;
     uint32_t channel;
 } stm32_chip_adc1_channel_type;
 
@@ -93,6 +93,12 @@ extern "C"{
 void stm32AfUARTInit(const USART_TypeDef *instance,
     GPIO_TypeDef *rxPort, uint32_t rxPin, 
     GPIO_TypeDef *txPort, uint32_t txPin);
+	
+#if defined(LPUART1)
+void stm32AfLPUARTInit(const USART_TypeDef *instance,
+    GPIO_TypeDef *rxPort, uint32_t rxPin,
+    GPIO_TypeDef *txPort, uint32_t txPin);
+#endif
 
 void stm32AfSPIInit(const SPI_TypeDef *instance,
     GPIO_TypeDef *mosiPort, uint32_t mosiPin,
@@ -113,6 +119,9 @@ void stm32AfI2SInitWithMck(const SPI_TypeDef *instance,
     GPIO_TypeDef *wsPort, uint32_t wsPin,
     GPIO_TypeDef *ckPort, uint32_t ckPin,
     GPIO_TypeDef *mckPort, uint32_t mckPin);
+	
+I2C_TypeDef *stm32GetI2CInstance(GPIO_TypeDef *sdaPort, uint32_t sdaPin,
+    GPIO_TypeDef *sclPort, uint32_t sclPin); //add by huaweiwx@sina.com 2017.8.2
 
 void stm32AfI2CInit(const I2C_TypeDef *instance,
     GPIO_TypeDef *sdaPort, uint32_t sdaPin,
@@ -160,17 +169,17 @@ uint32_t stm32GetClockFrequency(void *instance);
 /**
  * Get the ADC1 channel for the specified port / pin
  */
-stm32_chip_adc1_channel_type stm32ADC1GetChannel(GPIO_TypeDef *port, uint32_t pin_mask);
+stm32_chip_adc1_channel_type stm32ADC1GetChannel(GPIO_TypeDef *port, uint32_t pinMask);
 
 /**
  * Internal: set the AF function for the selected peripheral on the selected pin, with GPIO_SPEED_FREQ_VERY_HIGH speed
  */
-void stm32AfInit(const stm32_af_pin_list_type list[], int size, const void *instance, GPIO_TypeDef *port, uint32_t pin, uint32_t mode, uint32_t pull);
+void stm32AfInit(const stm32_af_pin_list_type list[], int size, const void *instance, GPIO_TypeDef *port, uint32_t pinMask, uint32_t mode, uint32_t pull);
 
 /**
  * Internal: set the AF function for the selected peripheral on the selected pin, with the specified GPIO speed
  */
-void stm32AfInitSpeed(const stm32_af_pin_list_type list[], int size, const void *instance, GPIO_TypeDef *port, uint32_t pin, uint32_t mode, uint32_t pull, uint32_t speed);
+void stm32AfInitSpeed(const stm32_af_pin_list_type list[], int size, const void *instance, GPIO_TypeDef *port, uint32_t pinMask, uint32_t mode, uint32_t pull, uint32_t speed);
 
 /**
  * Internal: get the default pin for the given peripheral
