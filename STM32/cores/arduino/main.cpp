@@ -46,12 +46,22 @@ void setupUSB() {
 #endif
 }
 
+// Force init to be called *first*, i.e. before static object allocation.
+// Otherwise, statically allocated objects that need HAL may fail.
+ __attribute__(( constructor (101))) void premain() {
+
+// Required by FreeRTOS, see http://www.freertos.org/RTOS-Cortex-M3-M4.html
+#ifdef NVIC_PRIORITYGROUP_4
+  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+#endif
+
+    init();
+}
+
 // Weak empty main may be use CubMX main.c source program.
 int main(void) __weak;
 int main(void)
-{
-	init();
-	
+{	
 	initVariant();
 #ifdef STM32F1
  #if defined(MENU_DEBUG_DISABLED)
@@ -66,7 +76,7 @@ int main(void)
     setupUSB();
 
 	setup();
-    
+
 	for (;;) {
 		loop();
 	}
@@ -74,5 +84,5 @@ int main(void)
 }
 
 #else
-#error "Please update to GCC ver 5-2016q2 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads"	
+#error "Please update to GCC ver 5-2016q2 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads"
 #endif
