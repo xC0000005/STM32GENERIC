@@ -24,8 +24,7 @@
  *
  ****************************************************************************/
 
-#include "SerialUSB.h"
-#include "STM32System.h"
+#include <SerialUSB.h>
 #include "variant.h"
 
 #include "USBDevice.h"
@@ -38,13 +37,8 @@ SerialUSBClass::SerialUSBClass(){
 }
 
 void SerialUSBClass::init(void) {
-    if (stdoutStream == NULL) {
-        #if defined(MENU_SERIAL) && MENU_SERIAL == SerialUSB
-            stdoutStream = this;
-        #elif defined(MENU_SERIAL_AUTO) && MENU_SERIAL_AUTO == SerialUSB
-            stdoutStream = this;
-        #endif
-    }
+  //
+  //USBDeviceFS.beginCDC();
 }
 
 
