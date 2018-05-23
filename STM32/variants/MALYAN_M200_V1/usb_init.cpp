@@ -1,6 +1,6 @@
 #include <arduino.h>
 
-void setupUSB() {
+void void initVariant() {
   pinMode(PB9, OUTPUT);
   digitalWrite(PB9,1);
   for(volatile unsigned int i=0;i<1024;i++);// Leave this high long enough for the host to notice
