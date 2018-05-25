@@ -18,7 +18,7 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
-  
+
   modify by huaweiwx@sina.com 2018.2.2
 */
 
@@ -241,6 +241,8 @@ void pwm_callback() {
     }
 }
 
+#ifndef NO_CORE_PWM
+
 #ifdef TIM3  /*priority to use TIM3. huaweiwx@sina.com 2018.2.2*/
   extern void TIM3_IRQHandler(void) {
 #else
@@ -251,3 +253,5 @@ void pwm_callback() {
         (*pwm_callback_func)();
     }
 }
+
+#endif
