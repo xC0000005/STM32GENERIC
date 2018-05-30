@@ -2,13 +2,14 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = 0x20005000;    /* end of RAM */
+_estack = 0x20004000;    /* end of RAM */
 
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x8002000, LENGTH = 120K
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 16K
+FLASH (rx)      : ORIGIN = 0x08002000, LENGTH = 120K
+VTRAM (xrw)     : ORIGIN = 0x20000000, LENGTH = 0xC0
+RAM (xrw)       : ORIGIN = 0x200000C0, LENGTH = 16K - 0xC0
 }
 
 /* Define output sections */
@@ -75,6 +76,13 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH
+
+  /*Other sections not related with VTRAM may go here before the RAMVectorTable definition*/
+
+  .RAMVectorTable(NOLOAD):
+  {
+    KEEP(*(.RAMVectorTable))
+  } > VTRAM
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
