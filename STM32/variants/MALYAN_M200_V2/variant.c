@@ -8,8 +8,6 @@
 /**Force VectorTable to specific memory position defined in linker*/
 volatile uint32_t ram_vector_table[48] __attribute__((section(".RAMVectorTable")));
 
-extern void manualFan();
-
 /* copy the vector table to SRAM.
  * Normally, a function like this would disable interrupts, BUT
  * the startup code has done so to keep the bootloader's DMA
