@@ -1,8 +1,10 @@
 #include "stm32_def.h"
 
 #if (USER_USBDCONF < 1)
-	
-#ifdef STM32F1
+
+#ifdef STM32F0
+ #include "usbd_conf_F0.inc"
+#elif defined(STM32F1)
  #include "usbd_conf_F1.inc"
 #elif defined(STM32F2)
 // #include "usbd_conf_F2.inc"
